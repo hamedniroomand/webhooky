@@ -1,38 +1,117 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { APITester } from "./APITester";
-import "./index.css";
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
 
-import logo from "./logo.svg";
-import reactLogo from "./react.svg";
+import { AppLayout } from '@/components/app-layout';
+import { AppShell } from '@/components/app-shell';
+import { InboxState } from '@/components/inbox-state';
+import { useRequests } from '@/hooks/use-requests';
+import { useSession } from '@/hooks/use-session';
+import { useTheme } from '@/hooks/use-theme';
+
+import './index.css';
 
 export function App() {
+  const { theme, toggle } = useTheme();
+  const session = useSession();
+  const inboxToken = session.inbox?.token ?? null;
+  const requests = useRequests(inboxToken);
+  const [mobileDetail, setMobileDetail] = useState(false);
+
+  useEffect(() => {
+    const inbox = session.inbox;
+    if (!inbox) {
+      return;
+    }
+    const count = requests.requests.length;
+    if (inbox.requestCount !== count) {
+      session.adoptInbox({ ...inbox, requestCount: count });
+    }
+  }, [session.inbox, session.adoptInbox, requests.requests.length]);
+
+  const selectRequest = useCallback(
+    (id: string) => {
+      requests.setSelectedId(id);
+      if (window.matchMedia('(max-width: 767px)').matches) {
+        setMobileDetail(true);
+        history.pushState({ pane: 'detail' }, '', '/');
+      }
+    },
+    [requests],
+  );
+
+  useEffect(() => {
+    const onPop = () => {
+      setMobileDetail(false);
+      requests.setSelectedId(null);
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, [requests]);
+
+  let content: ReactNode;
+
+  if (session.phase === 'loading') {
+    content = (
+      <main className="text-muted-foreground flex flex-1 items-center justify-center p-8 text-sm">
+        Loading inbox…
+      </main>
+    );
+  } else if (session.phase === 'error') {
+    content = (
+      <main className="flex flex-1 items-center justify-center p-6">
+        <div className="w-full max-w-lg">
+          <InboxState
+            kind={session.lostSession ? 'lost-session' : 'missing'}
+            onCreate={() => void session.createNewInbox()}
+          />
+        </div>
+      </main>
+    );
+  } else if (!session.inbox) {
+    const kind =
+      session.absentReason === 'expired'
+        ? 'expired'
+        : session.absentReason === 'deleted'
+          ? 'deleted'
+          : 'missing';
+    content = (
+      <main className="flex flex-1 items-center justify-center p-6">
+        <div className="w-full max-w-lg">
+          <InboxState
+            kind={kind}
+            onCreate={() => void session.createNewInbox()}
+          />
+        </div>
+      </main>
+    );
+  } else {
+    content = (
+      <AppShell
+        inbox={session.inbox}
+        requests={requests.requests}
+        connection={requests.connection}
+        newIds={requests.newIds}
+        selectedId={requests.selectedId}
+        onSelectRequest={selectRequest}
+        detail={requests.detail}
+        mobileDetail={mobileDetail}
+        onBackToList={() => {
+          setMobileDetail(false);
+          requests.setSelectedId(null);
+        }}
+        onNewInbox={session.createNewInbox}
+        onCleared={requests.clearList}
+        onDeleted={() => void session.refresh()}
+      />
+    );
+  }
+
   return (
-    <div className="container mx-auto p-8 text-center relative z-10">
-      <div className="flex justify-center items-center gap-8 mb-8">
-        <img
-          src={logo}
-          alt="Bun Logo"
-          className="h-36 p-6 transition-all duration-300 hover:drop-shadow-[0_0_2em_#646cffaa] scale-120"
-        />
-        <img
-          src={reactLogo}
-          alt="React Logo"
-          className="h-36 p-6 transition-all duration-300 hover:drop-shadow-[0_0_2em_#61dafbaa] [animation:spin_20s_linear_infinite]"
-        />
-      </div>
-      <Card>
-        <CardHeader className="gap-4">
-          <CardTitle className="text-3xl font-bold">Bun + React</CardTitle>
-          <CardDescription>
-            Edit <code className="rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono">src/App.tsx</code> and save to
-            test HMR
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <APITester />
-        </CardContent>
-      </Card>
-    </div>
+    <AppLayout
+      theme={theme}
+      onToggleTheme={toggle}
+    >
+      {content}
+    </AppLayout>
   );
 }
 
