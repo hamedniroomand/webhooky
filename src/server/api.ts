@@ -136,7 +136,15 @@ function parseApiPath(pathname: string): {
 
 export async function handleApi(req: Request): Promise<Response> {
   const url = new URL(req.url);
-  const route = parseApiPath(url.pathname);
+  let route: ReturnType<typeof parseApiPath>;
+  try {
+    route = parseApiPath(url.pathname);
+  } catch {
+    return managementJson(
+      { error: { code: 'BAD_REQUEST', message: 'Invalid URL encoding.' } },
+      { status: 400 },
+    );
+  }
   let session = purgeSessionIfExpired(resolveSession(req));
   let setCookie: string | null = null;
 

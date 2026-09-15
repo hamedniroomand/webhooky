@@ -1,21 +1,18 @@
-import { CopyButton } from '@/components/copy-button';
+import { Radio } from 'lucide-react';
 
-type EmptyStateProps = {
-  webhookUrl: string;
-};
-
-export function EmptyState({ webhookUrl }: EmptyStateProps) {
-  const sample = `curl -X POST '${webhookUrl}' -H 'Content-Type: application/json' -d '{"hello":"world"}'`;
-
+export function EmptyState() {
   return (
-    <div className="text-muted-foreground space-y-3 p-6 text-sm md:p-8">
-      <p>No requests yet.</p>
-      <p>Send a request to your webhook URL and it will appear here.</p>
-      <div className="bg-muted/40 rounded-md border p-3 font-mono text-xs break-all">{sample}</div>
-      <CopyButton
-        value={sample}
-        label="Copy sample command"
-      />
+    <div className="feed-empty">
+      <span className="empty-icon">
+        <Radio size={22} />
+      </span>
+      <h3>Waiting for requests</h3>
+      <p>
+        Send a webhook to your endpoint.
+        <br />
+        New requests appear here automatically.
+      </p>
+      <span className="text-muted-foreground text-xs">GET · POST · PUT · PATCH · DELETE</span>
     </div>
   );
 }

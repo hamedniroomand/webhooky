@@ -17,6 +17,10 @@ export function App() {
   const [mobileDetail, setMobileDetail] = useState(false);
 
   useEffect(() => {
+    setMobileDetail(false);
+  }, [inboxToken]);
+
+  useEffect(() => {
     const inbox = session.inbox;
     if (!inbox) {
       return;

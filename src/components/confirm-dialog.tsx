@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState, useId } from 'react';
 
 import { Button } from '@/components/ui/button';
 
@@ -7,7 +7,7 @@ type ConfirmDialogProps = {
   title: string;
   message: string;
   confirmLabel: string;
-  onConfirm: () => void;
+  onConfirm: () => void | Promise<unknown>;
   onCancel: () => void;
 };
 
@@ -19,6 +19,9 @@ export function ConfirmDialog({
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const titleId = useId();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
 
@@ -28,6 +31,7 @@ export function ConfirmDialog({
       return;
     }
     if (open && !dialog.open) {
+      setError(null);
       triggerRef.current = document.activeElement as HTMLElement | null;
       dialog.showModal();
     }
@@ -40,9 +44,10 @@ export function ConfirmDialog({
     <dialog
       ref={dialogRef}
       className="app-dialog"
+      aria-labelledby={titleId}
       onCancel={(event) => {
         event.preventDefault();
-        onCancel();
+        if (!pending) onCancel();
       }}
       onClose={() => {
         triggerRef.current?.focus();
@@ -50,13 +55,27 @@ export function ConfirmDialog({
     >
       <div className="space-y-4 p-6">
         <div className="space-y-2">
-          <h2 className="text-lg font-semibold">{title}</h2>
+          <h2
+            id={titleId}
+            className="text-lg font-semibold"
+          >
+            {title}
+          </h2>
           <p className="text-muted-foreground text-sm leading-relaxed">{message}</p>
         </div>
+        {error ? (
+          <p
+            role="alert"
+            className="text-destructive text-sm"
+          >
+            {error}
+          </p>
+        ) : null}
         <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <Button
             type="button"
             variant="outline"
+            disabled={pending}
             onClick={onCancel}
           >
             Cancel
@@ -64,9 +83,20 @@ export function ConfirmDialog({
           <Button
             type="button"
             variant="destructive"
-            onClick={onConfirm}
+            disabled={pending}
+            onClick={async () => {
+              setPending(true);
+              setError(null);
+              try {
+                await onConfirm();
+              } catch (e) {
+                setError(e instanceof Error ? e.message : 'Operation failed. Try again.');
+              } finally {
+                setPending(false);
+              }
+            }}
           >
-            {confirmLabel}
+            {pending ? 'Working…' : confirmLabel}
           </Button>
         </div>
       </div>

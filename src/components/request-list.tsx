@@ -3,11 +3,11 @@ import { cn } from '@/lib/utils';
 import type { RequestSummaryDto } from '@/types/api';
 
 const methodClass: Record<string, string> = {
-  GET: 'text-emerald-700',
-  POST: 'text-sky-700',
-  PUT: 'text-amber-700',
-  PATCH: 'text-violet-700',
-  DELETE: 'text-rose-700',
+  GET: 'text-emerald-700 dark:text-emerald-400',
+  POST: 'text-sky-700 dark:text-sky-400',
+  PUT: 'text-amber-700 dark:text-amber-400',
+  PATCH: 'text-violet-700 dark:text-violet-400',
+  DELETE: 'text-rose-700 dark:text-rose-400',
 };
 
 type RequestListProps = {
@@ -28,14 +28,15 @@ export function RequestList({ rows, selectedId, newIds, onSelect }: RequestListP
           <button
             type="button"
             className={cn(
-              'hover:bg-muted/50 w-full px-3 py-2 text-left transition-colors',
-              selectedId === row.id && 'bg-muted',
+              'request-row hover:bg-muted/50 w-full px-4 py-4 text-left transition-colors',
+              selectedId === row.id && 'selected',
               newIds.has(row.id) && 'bg-primary/10 ring-1 ring-primary/30',
             )}
+            aria-pressed={selectedId === row.id}
             onClick={() => onSelect(row.id)}
           >
             <div className="flex items-center gap-2 text-sm">
-              <span className={cn('font-semibold', methodClass[row.method] ?? 'text-foreground')}>
+              <span className={cn('method-badge', methodClass[row.method] ?? 'text-foreground')}>
                 {row.method}
               </span>
               <span className="truncate font-mono text-xs">{row.path}</span>

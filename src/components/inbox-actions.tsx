@@ -32,7 +32,7 @@ export function InboxActions({
         disabled={requestCount === 0}
         onClick={() => setClearOpen(true)}
       >
-        Clear Requests
+        Clear requests
       </Button>
       <Button
         type="button"
@@ -40,25 +40,25 @@ export function InboxActions({
         size="sm"
         onClick={() => setNewOpen(true)}
       >
-        New Inbox
+        New inbox
       </Button>
       <Button
         type="button"
-        variant="destructive"
+        variant="ghost"
         size="sm"
         onClick={() => setDeleteOpen(true)}
       >
-        Delete Inbox
+        Delete inbox
       </Button>
 
       <ConfirmDialog
         open={clearOpen}
         title="Clear requests"
         message={`Delete all ${requestCount} captured request${requestCount === 1 ? '' : 's'} from this inbox? This cannot be undone.`}
-        confirmLabel="Clear Requests"
+        confirmLabel="Clear requests"
         onCancel={() => setClearOpen(false)}
         onConfirm={() => {
-          void clearRequests(token).then(() => {
+          return clearRequests(token).then(() => {
             onCleared();
             setClearOpen(false);
           });
@@ -69,10 +69,10 @@ export function InboxActions({
         open={newOpen}
         title="Create new inbox"
         message="Create a new webhook inbox? Your current inbox stays active until it expires."
-        confirmLabel="New Inbox"
+        confirmLabel="New inbox"
         onCancel={() => setNewOpen(false)}
         onConfirm={() => {
-          void onNewInbox().finally(() => setNewOpen(false));
+          return onNewInbox().then(() => setNewOpen(false));
         }}
       />
 
@@ -80,10 +80,10 @@ export function InboxActions({
         open={deleteOpen}
         title="Delete inbox"
         message="Delete this inbox and all captured requests? The webhook URL will stop working."
-        confirmLabel="Delete Inbox"
+        confirmLabel="Delete inbox"
         onCancel={() => setDeleteOpen(false)}
         onConfirm={() => {
-          void deleteInbox(token).then(() => {
+          return deleteInbox(token).then(() => {
             onDeleted();
             setDeleteOpen(false);
           });

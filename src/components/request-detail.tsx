@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { BodyView } from '@/components/body-view';
 import { CopyButton } from '@/components/copy-button';
 import { KvTable } from '@/components/kv-table';
+import { QuickStart } from '@/components/quick-start';
 import { formatAbsoluteTime, formatBytes } from '@/lib/format';
 import { formatRawRequest } from '@/lib/raw';
 import { cn } from '@/lib/utils';
@@ -25,7 +26,7 @@ export function RequestDetail({ detail, webhookUrl }: RequestDetailProps) {
   }, [detail?.id]);
 
   if (!detail) {
-    return <p className="text-muted-foreground p-6 text-sm">Select a request to inspect it.</p>;
+    return <QuickStart webhookUrl={webhookUrl} />;
   }
 
   const fullUrl = new URL(
@@ -51,7 +52,20 @@ export function RequestDetail({ detail, webhookUrl }: RequestDetailProps) {
   const raw = formatRawRequest(detail, webhookUrl);
 
   return (
-    <div className="flex h-full min-h-0 flex-col">
+    <div className="request-detail flex h-full min-h-0 flex-col">
+      <div className="detail-heading">
+        <div>
+          <p className="eyebrow">REQUEST INSPECTOR</p>
+          <h2>
+            <span className="method-badge">{detail.method}</span>{' '}
+            <span className="break-all">{detail.path}</span>
+          </h2>
+        </div>
+        <CopyButton
+          value={fullUrl.toString()}
+          label="Copy URL"
+        />
+      </div>
       <div
         role="tablist"
         aria-label="Request inspector sections"
@@ -84,7 +98,7 @@ export function RequestDetail({ detail, webhookUrl }: RequestDetailProps) {
         role="tabpanel"
       >
         {tab === 'Overview' ? (
-          <dl className="grid gap-2">
+          <dl className="overview-grid">
             <div>
               <dt className="text-muted-foreground">Method</dt>
               <dd>{detail.method}</dd>

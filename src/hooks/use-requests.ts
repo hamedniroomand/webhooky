@@ -22,24 +22,41 @@ export function useRequests(inboxToken: string | null) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [detail, setDetail] = useState<RequestDetailDto | null>(null);
   const detailSeq = useRef(0);
+  const listSeq = useRef(0);
 
   useEffect(() => {
+    setRequests([]);
+    setSelectedId(null);
+    setDetail(null);
+    setNewIds(new Set());
     if (!inboxToken) {
-      setRequests([]);
       setConnection('offline');
       return;
     }
     let closed = false;
-    void listRequests(inboxToken).then((rows) => {
-      if (!closed) {
-        setRequests(rows.slice(0, MAX_ROWS));
-      }
-    });
+    const refresh = () => {
+      const seq = ++listSeq.current;
+      void listRequests(inboxToken)
+        .then((rows) => {
+          if (!closed && listSeq.current === seq)
+            setRequests((current) => {
+              const merged = new Map([...rows, ...current].map((row) => [row.id, row]));
+              return [...merged.values()]
+                .toSorted((a, b) => b.receivedAt.localeCompare(a.receivedAt))
+                .slice(0, MAX_ROWS);
+            });
+        })
+        .catch(() => {
+          if (!closed) setConnection('offline');
+        });
+    };
 
+    refresh();
     const source = new EventSource(inboxEventsUrl(inboxToken));
     source.addEventListener('ready', () => {
       if (!closed) {
         setConnection('connected');
+        refresh();
       }
     });
     source.addEventListener('keepalive', () => {
@@ -63,11 +80,11 @@ export function useRequests(inboxToken: string | null) {
       }, 2000);
       setConnection('connected');
     });
-    source.onerror = () => {
+    source.addEventListener('error', () => {
       if (!closed) {
         setConnection(source.readyState === EventSource.CONNECTING ? 'reconnecting' : 'offline');
       }
-    };
+    });
 
     return () => {
       closed = true;
@@ -77,19 +94,24 @@ export function useRequests(inboxToken: string | null) {
   }, [inboxToken]);
 
   useEffect(() => {
-    if (!inboxToken || !selectedId) {
-      setDetail(null);
-      return;
-    }
     const seq = ++detailSeq.current;
-    void getRequest(inboxToken, selectedId).then((row) => {
-      if (detailSeq.current === seq) {
-        setDetail(row);
-      }
-    });
+    setDetail(null);
+    if (!inboxToken || !selectedId) return;
+    void getRequest(inboxToken, selectedId)
+      .then((row) => {
+        if (detailSeq.current === seq) setDetail(row);
+      })
+      .catch(() => {
+        if (detailSeq.current === seq) setSelectedId(null);
+      });
+    return () => {
+      detailSeq.current++;
+    };
   }, [inboxToken, selectedId]);
 
   const clearList = useCallback(() => {
+    listSeq.current++;
+    detailSeq.current++;
     setRequests([]);
     setSelectedId(null);
     setDetail(null);

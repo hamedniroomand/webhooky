@@ -1,30 +1,55 @@
+import { ArrowUpRight } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 import { ThemeToggle } from '@/components/theme-toggle';
 import type { Theme } from '@/hooks/use-theme';
 
-type AppLayoutProps = {
-  theme: Theme;
-  onToggleTheme: () => void;
-  children: ReactNode;
-};
+import favicon from '../favicon.png';
+
+type AppLayoutProps = { theme: Theme; onToggleTheme: () => void; children: ReactNode };
 
 export function AppLayout({ theme, onToggleTheme, children }: AppLayoutProps) {
   return (
-    <div className="bg-muted/30 min-h-svh md:p-4">
-      <div className="bg-card mx-auto flex min-h-svh w-full max-w-6xl flex-col overflow-hidden md:min-h-[calc(100svh-2rem)] md:rounded-xl md:border md:shadow-lg">
-        <div className="bg-card/80 supports-[backdrop-filter]:bg-card/70 sticky top-0 z-10 flex items-center justify-between gap-3 border-b px-4 py-3 backdrop-blur">
-          <div>
-            <p className="text-sm font-semibold tracking-tight">Webhooky</p>
-            <p className="text-muted-foreground text-xs">Temporary webhook inspector</p>
-          </div>
+    <div className="app-frame">
+      <header className="app-nav">
+        <a
+          href="/"
+          className="brand"
+          aria-label="Webhooky home"
+        >
+          <span className="brand-mark">
+            <img
+              src={favicon}
+              alt=""
+              width={35}
+              height={35}
+              className="rounded-lg"
+            />
+          </span>
+          <span>
+            webhooky<span className="text-primary">.</span>
+          </span>
+        </a>
+        <span className="nav-divider" />
+        <span className="text-muted-foreground text-sm">Request workspace</span>
+        <div className="ml-auto flex items-center gap-4">
+          <a
+            href="#endpoint"
+            className="guide-link"
+          >
+            Quick start <ArrowUpRight size={14} />
+          </a>
           <ThemeToggle
             theme={theme}
             onToggle={onToggleTheme}
           />
         </div>
-        <div className="flex min-h-0 flex-1 flex-col">{children}</div>
-      </div>
+      </header>
+      <div className="workspace">{children}</div>
+      <footer className="app-footer">
+        <span>Built for the request behind the event.</span>
+        <span>Temporary inboxes · No account required</span>
+      </footer>
     </div>
   );
 }

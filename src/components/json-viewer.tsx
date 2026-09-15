@@ -14,11 +14,11 @@ function JsonNode({ value, name }: { value: unknown; name?: string }) {
       <div className="font-mono text-xs break-all">
         {name ? (
           <>
-            <span className="text-sky-700">{name}</span>
+            <span className="text-sky-700 dark:text-sky-300">{name}</span>
             <span className="text-muted-foreground">: </span>
           </>
         ) : null}
-        <span className="text-emerald-700">{JSON.stringify(value)}</span>
+        <span className="text-emerald-700 dark:text-emerald-300">{JSON.stringify(value)}</span>
       </div>
     );
   }

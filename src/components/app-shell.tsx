@@ -2,6 +2,7 @@ import { ConnectionStatus } from '@/components/connection-status';
 import { EmptyState } from '@/components/empty-state';
 import { InboxActions } from '@/components/inbox-actions';
 import { InboxHeader } from '@/components/inbox-header';
+import { QuickStart } from '@/components/quick-start';
 import { RequestDetail } from '@/components/request-detail';
 import { RequestList } from '@/components/request-list';
 import type { ConnectionState } from '@/hooks/use-requests';
@@ -53,18 +54,25 @@ export function AppShell({
         }
       />
 
-      <div className="grid min-h-0 flex-1 md:grid-cols-[minmax(0,18rem)_minmax(0,1fr)] lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
+      <div className="request-workspace grid min-h-0 flex-1 md:grid-cols-[minmax(0,18rem)_minmax(0,1fr)] lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
         <section
           className={`bg-muted/20 flex min-h-0 flex-col border-b md:border-r md:border-b-0 ${mobileDetail ? 'hidden md:flex' : 'flex'}`}
           aria-label="Request list"
         >
           <div className="flex items-center justify-between gap-2 border-b px-4 py-3">
-            <h2 className="text-sm font-medium">Requests</h2>
+            <h2 className="text-sm font-semibold">
+              Request feed <span className="request-count">{requestCount}</span>
+            </h2>
             <ConnectionStatus state={connection} />
           </div>
           <div className="min-h-0 flex-1 overflow-auto">
             {requests.length === 0 ? (
-              <EmptyState webhookUrl={inbox.webhookUrl} />
+              <>
+                <EmptyState />
+                <div className="md:hidden">
+                  <QuickStart webhookUrl={inbox.webhookUrl} />
+                </div>
+              </>
             ) : (
               <RequestList
                 rows={requests}

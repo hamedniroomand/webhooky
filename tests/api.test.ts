@@ -75,3 +75,10 @@ describe('management API', () => {
     expect(full.body).toBe('secret-body');
   });
 });
+
+test('malformed percent encoding returns a JSON error', async () => {
+  server = startTestServer();
+  const res = await fetch(`${server.baseUrl}/api/inbox/%ZZ/requests`);
+  expect(res.status).toBe(400);
+  expect(res.headers.get('content-type')).toContain('application/json');
+});
