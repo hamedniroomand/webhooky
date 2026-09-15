@@ -133,11 +133,17 @@ export function RequestDetail({ detail, webhookUrl }: RequestDetailProps) {
         {tab === 'Headers' ? (
           <KvTable
             rows={detail.headers}
+            copyAllLabel="Copy all headers"
             sensitive={(name) => /authorization|secret|token|signature|cookie/i.test(name)}
           />
         ) : null}
 
-        {tab === 'Query' ? <KvTable rows={detail.query} /> : null}
+        {tab === 'Query' ? (
+          <KvTable
+            rows={detail.query}
+            copyAllLabel="Copy all query params"
+          />
+        ) : null}
 
         {tab === 'Body' ? (
           <BodyView

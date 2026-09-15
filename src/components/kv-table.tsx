@@ -3,9 +3,14 @@ import { CopyButton } from '@/components/copy-button';
 type KvTableProps = {
   rows: [string, string][];
   sensitive?: (name: string) => boolean;
+  copyAllLabel?: string;
 };
 
-export function KvTable({ rows, sensitive }: KvTableProps) {
+export function KvTable({
+  rows,
+  sensitive,
+  copyAllLabel = 'Copy all',
+}: KvTableProps) {
   if (rows.length === 0) {
     return <p className="text-muted-foreground text-sm">None</p>;
   }
@@ -16,7 +21,7 @@ export function KvTable({ rows, sensitive }: KvTableProps) {
     <div className="space-y-2">
       <CopyButton
         value={all}
-        label="Copy all headers"
+        label={copyAllLabel}
       />
       <div className="max-h-80 overflow-auto rounded-md border">
         <table className="w-full text-left text-sm">
@@ -24,19 +29,22 @@ export function KvTable({ rows, sensitive }: KvTableProps) {
             {rows.map(([name, value], index) => (
               <tr
                 key={`${name}-${index}`}
-                className="border-b align-top"
+                className="border-b align-top last:border-b-0"
               >
-                <th className="text-muted-foreground w-1/3 px-3 py-2 font-medium">{name}</th>
+                <th className="text-muted-foreground w-[30%] max-w-[12rem] px-3 py-2 font-medium break-all">
+                  {name}
+                </th>
                 <td className="px-3 py-2 font-mono text-xs break-all">
                   <span className={sensitive?.(name) ? 'rounded bg-amber-500/10 px-1' : ''}>
                     {value}
                   </span>
-                  <div className="mt-1">
-                    <CopyButton
-                      value={value}
-                      label={`Copy ${name}`}
-                    />
-                  </div>
+                </td>
+                <td className="w-10 px-1 py-1.5 align-top">
+                  <CopyButton
+                    iconOnly
+                    value={value}
+                    label={`Copy ${name}`}
+                  />
                 </td>
               </tr>
             ))}
