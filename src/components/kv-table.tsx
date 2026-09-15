@@ -6,11 +6,7 @@ type KvTableProps = {
   copyAllLabel?: string;
 };
 
-export function KvTable({
-  rows,
-  sensitive,
-  copyAllLabel = 'Copy all',
-}: KvTableProps) {
+export function KvTable({ rows, sensitive, copyAllLabel = 'Copy all' }: KvTableProps) {
   if (rows.length === 0) {
     return <p className="text-muted-foreground text-sm">None</p>;
   }

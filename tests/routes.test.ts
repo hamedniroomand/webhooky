@@ -38,6 +38,19 @@ describe('route namespaces', () => {
     }
   });
 
+  test('crawler assets bypass the SPA', async () => {
+    server = startTestServer();
+    for (const path of ['/og.png', '/favicon.png']) {
+      const res = await fetch(`${server.baseUrl}${path}`);
+      expect(res.status).toBe(200);
+      expect(res.headers.get('content-type')).toContain('image/png');
+    }
+
+    const robots = await fetch(`${server.baseUrl}/robots.txt`);
+    expect(robots.headers.get('content-type')).toContain('text/plain');
+    expect(await robots.text()).toContain('Disallow: /h/');
+  });
+
   test('unmatched path returns the SPA', async () => {
     server = startTestServer();
     const res = await fetch(`${server.baseUrl}/dashboard`);

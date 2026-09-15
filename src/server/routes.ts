@@ -1,3 +1,5 @@
+import favicon from '@/favicon.png';
+import ogImage from '@/og.png';
 import { handleApi } from '@/server/api';
 import { handleCapture } from '@/server/capture';
 
@@ -23,6 +25,14 @@ function apiRoute(req: Request): Promise<Response> {
   return handleApi(req);
 }
 
+function imageRoute(path: string): Response {
+  return new Response(Bun.file(path), {
+    headers: { 'Cache-Control': 'public, max-age=604800' },
+  });
+}
+
+const robotsTxt = ['User-agent: *', 'Allow: /', 'Disallow: /api/', 'Disallow: /h/', ''].join('\n');
+
 export function buildRoutes(spa: SpaHandler) {
   return {
     '/h/:token': captureMethods,
@@ -34,6 +44,12 @@ export function buildRoutes(spa: SpaHandler) {
       PATCH: apiRoute,
       DELETE: apiRoute,
     },
+    '/og.png': () => imageRoute(ogImage),
+    '/favicon.png': () => imageRoute(favicon),
+    '/robots.txt': () =>
+      new Response(robotsTxt, {
+        headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+      }),
     '/*': spa,
   };
 }
