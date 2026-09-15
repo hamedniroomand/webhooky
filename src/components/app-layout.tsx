@@ -47,7 +47,18 @@ export function AppLayout({ theme, onToggleTheme, children }: AppLayoutProps) {
       </header>
       <div className="workspace">{children}</div>
       <footer className="app-footer">
-        <span>Built for the request behind the event.</span>
+        <a
+          href="https://github.com/hamedniroomand/webhooky"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="guide-link hover:text-foreground"
+        >
+          View on GitHub{' '}
+          <ArrowUpRight
+            size={14}
+            aria-hidden="true"
+          />
+        </a>
         <span>Temporary inboxes · No account required</span>
       </footer>
     </div>

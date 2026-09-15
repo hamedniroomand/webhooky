@@ -2,6 +2,23 @@
   "name": "webhooky",
   "version": "0.1.0",
   "private": true,
+  "description": "A temporary webhook inbox with a live request inspector.",
+  "keywords": [
+    "bun",
+    "react",
+    "sqlite",
+    "sse",
+    "webhook",
+    "webhook-inspector"
+  ],
+  "homepage": "https://github.com/hamedniroomand/webhooky#readme",
+  "bugs": {
+    "url": "https://github.com/hamedniroomand/webhooky/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hamedniroomand/webhooky.git"
+  },
   "type": "module",
   "scripts": {
     "lint": "oxlint .",
@@ -45,5 +62,6 @@
   },
   "lint-staged": {
     "*": "bun run lint:fix"
-  }
+  },
+  "packageManager": "bun@1.4.2"
 }
