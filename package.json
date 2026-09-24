@@ -52,9 +52,9 @@
     "@types/react-dom": "^19",
     "husky": "^9.1.7",
     "lint-staged": "^17.5.1",
-    "oxfmt": "^0.68.0",
-    "oxlint": "^1.83.0",
-    "oxlint-tsgolint": "^7.0.2002",
+    "oxfmt": "^0.70.0",
+    "oxlint": "^1.85.0",
+    "oxlint-tsgolint": "^7.0.2003",
     "tailwindcss": "^4.3.3"
   },
   "peerDependencies": {
